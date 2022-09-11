@@ -2179,7 +2179,6 @@ __device__ void PPUCuda::tick(uint64_t cycles)
                             const uint8_t pattern_n = gb->mmu.read(oam_start + 2);
                             const uint8_t sprite_attrs = gb->mmu.read(oam_start + 3);
 
-                            /* Bits 0-3 are used only for CGB */
                             const bool use_palette_1 = sprite_attrs & (1 << 4);
                             const bool flip_x = sprite_attrs & (1 << 5);
                             const bool flip_y = sprite_attrs & (1 << 6);
@@ -2291,7 +2290,6 @@ void initGpuData(const uint8_t** roms, uint64_t roms_size)
 {
     cudaError_t cudaStatus;
 
-    // Allocate GPU buffers for three vectors (two input, one output)
     cudaStatus = cudaMalloc((void**)&gb_data, EMU_HEIGHT * EMU_WIDTH * (sizeof(GameboyCuda) + FB_HEIGHT * FB_WIDTH * 3));
     if (cudaStatus != cudaSuccess)
         fprintf(stderr, "cudaMalloc failed!");
@@ -2307,19 +2305,14 @@ void initGpuData(const uint8_t** roms, uint64_t roms_size)
     delete[] g;
 }
 
-// Helper function for using CUDA to add vectors in parallel.
 cudaError_t emulateGpu(uint8_t* display)
 {
-    // Launch a kernel on the GPU with one thread for each element.
     emulateKernel<<<EMU_HEIGHT, EMU_WIDTH>>>(gb_data);
 
-    // Check for any errors launching the kernel
     cudaError_t cudaStatus = cudaGetLastError();
     if (cudaStatus != cudaSuccess)
         fprintf(stderr, "emulateKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
     
-    // cudaDeviceSynchronize waits for the kernel to finish, and returns
-    // any errors encountered during the launch.
     cudaStatus = cudaDeviceSynchronize();
     if (cudaStatus != cudaSuccess)
         fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching emulateKernel!\n", cudaStatus);
