@@ -25,7 +25,7 @@ The central piece is the CUDA kernel "emulateGpu" which is called continuously i
 GPU: RTX 3070 Mobility
 Time is per single kernel run, which emulates 16ms (Gameboy time)
 
-1 instance - 25ms (1 warp, 1 thread)
-1K instances - 60ms (1024 warps, 1 thread each, SM hardware warp schedulers *are* efficient)
-1K instances - 85ms (32 warps, 32 threads each)
-16K instances - 670ms (512 warps, 32 threads each)
+- 1 instance - 25ms (1 warp, 1 thread)
+- 1K instances - 60ms (1024 warps, 1 thread each, SM hardware warp schedulers *are* efficient)
+- 1K instances - 85ms (32 warps, 32 threads each)
+- 16K instances - 670ms (512 warps, 32 threads each)
